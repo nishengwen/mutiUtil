@@ -11,6 +11,8 @@ fun String?.toast(context: Context) {
     }
 }
 
+
+
 //一些常用的lambda
 typealias  SetListener<T> = T.() -> Unit
 typealias  OutData<T> = (T) -> Unit
