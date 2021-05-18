@@ -48,7 +48,7 @@ class HomeFragment : Fragment() {
 //            layoutManager = LinearLayoutManager(recyclerView.context)
 //            adapter =
 //        }
-
+        MixAdapter()
         val mAdapter=MixAdapter(fragment){
             registerBinder(SimpleBinder())
             registerBinder(SecondBinder())

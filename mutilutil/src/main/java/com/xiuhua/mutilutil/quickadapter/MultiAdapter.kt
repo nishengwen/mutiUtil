@@ -8,8 +8,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
 import java.util.*
 
 /**
@@ -24,9 +22,9 @@ import java.util.*
  */
 class MultiAdapter private constructor(registerBinderAction: MultiAdapter.() -> Unit, mContext: Context, private val mLifecycleOwner: LifecycleOwner) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    constructor (activity: ComponentActivity, registerBinderAction:  MultiAdapter.() -> Unit) : this(registerBinderAction, activity, activity)
+    constructor (activity: ComponentActivity, registerBinderAction: MultiAdapter.() -> Unit) : this(registerBinderAction, activity, activity)
 
-    constructor (fragment: Fragment, registerBinderAction:  MultiAdapter.() -> Unit) : this(registerBinderAction, fragment.requireContext(), fragment.viewLifecycleOwner)
+    constructor (fragment: Fragment, registerBinderAction: MultiAdapter.() -> Unit) : this(registerBinderAction, fragment.requireContext(), fragment.viewLifecycleOwner)
 
     //根据数据的类型查询binders中的viewType 添加到sortedMap自动排序
     val sortedMap: SortedMap<Int, Any> = sortedMapOf()
@@ -36,7 +34,9 @@ class MultiAdapter private constructor(registerBinderAction: MultiAdapter.() -> 
     init {
         registerBinderAction.invoke(this)
     }
-    val binderManager=BinderManager()
+
+    val binderManager = BinderManager()
+
     /**
      * 添加模板
      */
@@ -47,7 +47,7 @@ class MultiAdapter private constructor(registerBinderAction: MultiAdapter.() -> 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val dataBinder = binderManager.getBinder(viewType)
-        val viewDataBinding=dataBinder.getSDataBinding(inflater,parent)
+        val viewDataBinding = dataBinder.getSDataBinding(inflater, parent)
         viewDataBinding.lifecycleOwner = mLifecycleOwner
         dataBinder.onCreateViewHolder(viewDataBinding)
         return DataBindingViewHolder(viewDataBinding)
@@ -55,7 +55,7 @@ class MultiAdapter private constructor(registerBinderAction: MultiAdapter.() -> 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         holder as DataBindingViewHolder
-        val dataBinder=binderManager.getBinder(getItemViewType(position))
+        val dataBinder = binderManager.getBinder(getItemViewType(position))
         dataBinder.onBindViewHolder(holder.dataBinding, getItemData(position))
         holder.dataBinding.executePendingBindings()
     }
@@ -69,8 +69,6 @@ class MultiAdapter private constructor(registerBinderAction: MultiAdapter.() -> 
 
     override fun getItemCount() = sortedMap.values.size
     fun getItemData(position: Int) = sortedMap.values.elementAt(position)
-
-
 
 
     private class DataBindingViewHolder(val dataBinding: ViewDataBinding) : RecyclerView.ViewHolder(dataBinding.root)

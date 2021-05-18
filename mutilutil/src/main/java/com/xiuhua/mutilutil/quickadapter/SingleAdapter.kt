@@ -16,16 +16,16 @@ import java.lang.reflect.Type
  *
  * 数据和模板 多对一
  */
-class SingleAdapter<S : ViewDataBinding, T: Any> private constructor(
-        private val mContext: Context,
-        private val mLifecycleOwner: LifecycleOwner,
-        private val data: MutableList<T>,
-        val binder:  DataViewBinder<S, T>
-    ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class SingleAdapter<S : ViewDataBinding, T : Any> private constructor(
+    private val mContext: Context,
+    private val mLifecycleOwner: LifecycleOwner,
+    private val data: MutableList<T>,
+    val binder: DataViewBinder<S, T>
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    constructor (data: MutableList<T>, activity: ComponentActivity, binder:  DataViewBinder<S, T >) : this(activity, activity, data, binder)
+    constructor (data: MutableList<T>, activity: ComponentActivity, binder: DataViewBinder<S, T>) : this(activity, activity, data, binder)
 
-    constructor (data: MutableList<T>, fragment: Fragment,  binder:  DataViewBinder<S, T >) : this(
+    constructor (data: MutableList<T>, fragment: Fragment, binder: DataViewBinder<S, T>) : this(
         fragment.requireContext(),
         fragment.viewLifecycleOwner,
         data,
@@ -35,8 +35,7 @@ class SingleAdapter<S : ViewDataBinding, T: Any> private constructor(
     private val inflater: LayoutInflater = LayoutInflater.from(mContext)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val method=(getSuperGenericTypes(binder::class.java)[0] as Class<*>).getDeclaredMethod("inflate",LayoutInflater::class.java,ViewGroup::class.java,Boolean::class.java)
-        val viewDataBinding: ViewDataBinding =  method.invoke(null,inflater,parent,false) as ViewDataBinding
+        val viewDataBinding: ViewDataBinding = binder.getSDataBinding(inflater,parent)
         viewDataBinding.lifecycleOwner = mLifecycleOwner
         return DataBindingViewHolder(viewDataBinding)
     }

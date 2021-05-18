@@ -1,7 +1,6 @@
 package com.xiuhua.mutilutil.quickadapter
 
 import androidx.databinding.ViewDataBinding
-import java.lang.IllegalArgumentException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
@@ -11,21 +10,21 @@ import java.lang.reflect.Type
 class BinderManager {
     val binders = sortedMapOf<Int, DataViewBinder<in ViewDataBinding, in Any>>()
 
-    fun addBinder(dataViewBinder: DataViewBinder<out ViewDataBinding, out Any>){
-          binders[binders.size] = dataViewBinder as DataViewBinder<ViewDataBinding, Any>
+    fun addBinder(dataViewBinder: DataViewBinder<out ViewDataBinding, out Any>) {
+        binders[binders.size] = dataViewBinder as DataViewBinder<ViewDataBinding, Any>
     }
 
     /**
      * create/bind ViewHolder的时候viewType->binder
      */
-    fun getBinder(viewType: Int)=binders[viewType]?:throw IllegalArgumentException("不存在这个${viewType}的Binder")
+    fun getBinder(viewType: Int) = binders[viewType] ?: throw IllegalArgumentException("不存在这个${viewType}的Binder")
 
     /**
      * 添加数据的时候使用 数据对象->获取ViewType
      */
     fun getItemViewType(data: Any): Int {
         for ((key, value) in binders) {
-            if(data::class.java==getSuperGenericTypes(value::class.java)[1]){
+            if (data::class.java == getSuperGenericTypes(value::class.java)[1]) {
                 return key
             }
         }

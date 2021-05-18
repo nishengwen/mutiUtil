@@ -1,4 +1,5 @@
 package com.xiuhua.mutilutil.quickadapter
+
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
@@ -15,16 +16,16 @@ abstract class DataViewBinder<S : ViewDataBinding, T : Any> {
     /**
      * 获取此 Binder的ViewDataBinding
      */
-    internal fun getSDataBinding(inflater: LayoutInflater,parent: ViewGroup):ViewDataBinding{
-        val method=(getSuperGenericTypes()[0] as Class<*>).getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java,Boolean::class.java)
-        return  method.invoke(null,inflater,parent,false) as ViewDataBinding
+    internal fun getSDataBinding(inflater: LayoutInflater, parent: ViewGroup): ViewDataBinding {
+        val method = (getSuperGenericTypes()[0] as Class<*>).getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.java)
+        return method.invoke(null, inflater, parent, false) as ViewDataBinding
     }
 
     /**
      * 判断数据类型是否是T
      */
-    internal fun isTType(t: T): Boolean{
-       return t.javaClass==getSuperGenericTypes()[1]
+    internal fun isTType(t: T): Boolean {
+        return t.javaClass == getSuperGenericTypes()[1]
     }
 
     /**

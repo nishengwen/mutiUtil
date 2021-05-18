@@ -20,11 +20,11 @@ import androidx.recyclerview.widget.RecyclerView
  */
 class MixAdapter private constructor(registerBinderAction: MixAdapter.() -> Unit, mContext: Context, private val mLifecycleOwner: LifecycleOwner) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    constructor (activity: ComponentActivity, registerBinderAction:  MixAdapter.() -> Unit) : this(registerBinderAction, activity, activity)
+    constructor (activity: ComponentActivity, registerBinderAction: MixAdapter.() -> Unit) : this(registerBinderAction, activity, activity)
 
-    constructor (fragment: Fragment, registerBinderAction:  MixAdapter.() -> Unit) : this(registerBinderAction, fragment.requireContext(), fragment.viewLifecycleOwner)
+    constructor (fragment: Fragment, registerBinderAction: MixAdapter.() -> Unit) : this(registerBinderAction, fragment.requireContext(), fragment.viewLifecycleOwner)
 
-    private val binderManager=BinderManager()
+    private val binderManager = BinderManager()
     private val dataKey = hashMapOf<Any, Int>()
 
     private val inflater: LayoutInflater = LayoutInflater.from(mContext)
@@ -43,7 +43,7 @@ class MixAdapter private constructor(registerBinderAction: MixAdapter.() -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val dataBinder = binderManager.getBinder(viewType)
-        val viewDataBinding=dataBinder.getSDataBinding(inflater,parent)
+        val viewDataBinding = dataBinder.getSDataBinding(inflater, parent)
         viewDataBinding.lifecycleOwner = mLifecycleOwner
         dataBinder.onCreateViewHolder(viewDataBinding)
         return DataBindingViewHolder(viewDataBinding)
@@ -51,7 +51,7 @@ class MixAdapter private constructor(registerBinderAction: MixAdapter.() -> Unit
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         holder as DataBindingViewHolder
-        val dataBinder=binderManager.getBinder(getItemViewType(position))
+        val dataBinder = binderManager.getBinder(getItemViewType(position))
         dataBinder.onBindViewHolder(holder.dataBinding, getItemData(position))
         holder.dataBinding.executePendingBindings()
     }
@@ -72,12 +72,12 @@ class MixAdapter private constructor(registerBinderAction: MixAdapter.() -> Unit
     fun appendItem(itemData: Any) {
         val viewType = binderManager.getItemViewType(itemData)
         dataKey[itemData] = viewType
-        notifyItemInserted(dataKey.size-1)
+        notifyItemInserted(dataKey.size - 1)
     }
 
-    fun setList(list: MutableList<out Any>){
+    fun setList(list: MutableList<out Any>) {
         dataKey.clear()
-        for(data in list){
+        for (data in list) {
             appendItem(data)
         }
         notifyDataSetChanged()
