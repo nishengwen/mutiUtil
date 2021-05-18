@@ -8,35 +8,31 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
-import java.util.*
 
 /**
  *
- * 模板和数据一对一
+ * 数据和模板 多数据对多模板
  *
- * 多种不同模板数据，适用大型不重复长页面（自带排序），单文件可运行
+ * 列表顺序由数据决定
  *
- * ViewDataBinding 可以重复
- * Data 不可以重复
- * DataViewBinder 不可以重复
+ * 最广泛的列表模型
+ *
  */
-class MultiAdapter private constructor(registerBinderAction: MultiAdapter.() -> Unit, mContext: Context, private val mLifecycleOwner: LifecycleOwner) :
+class MixAdapter private constructor(registerBinderAction: MixAdapter.() -> Unit, mContext: Context, private val mLifecycleOwner: LifecycleOwner) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    constructor (activity: ComponentActivity, registerBinderAction:  MultiAdapter.() -> Unit) : this(registerBinderAction, activity, activity)
+    constructor (activity: ComponentActivity, registerBinderAction:  MixAdapter.() -> Unit) : this(registerBinderAction, activity, activity)
 
-    constructor (fragment: Fragment, registerBinderAction:  MultiAdapter.() -> Unit) : this(registerBinderAction, fragment.requireContext(), fragment.viewLifecycleOwner)
+    constructor (fragment: Fragment, registerBinderAction:  MixAdapter.() -> Unit) : this(registerBinderAction, fragment.requireContext(), fragment.viewLifecycleOwner)
 
-    //根据数据的类型查询binders中的viewType 添加到sortedMap自动排序
-    val sortedMap: SortedMap<Int, Any> = sortedMapOf()
+    private val binderManager=BinderManager()
+    private val dataKey = hashMapOf<Any, Int>()
 
     private val inflater: LayoutInflater = LayoutInflater.from(mContext)
 
     init {
         registerBinderAction.invoke(this)
     }
-    val binderManager=BinderManager()
+
     /**
      * 添加模板
      */
@@ -64,42 +60,27 @@ class MultiAdapter private constructor(registerBinderAction: MultiAdapter.() -> 
         onBindViewHolder(holder, position)
     }
 
-    override fun getItemViewType(position: Int) = sortedMap.keys.elementAt(position)
-    fun getPosition(viewType: Int) = sortedMap.keys.indexOf(viewType)
-
-    override fun getItemCount() = sortedMap.values.size
-    fun getItemData(position: Int) = sortedMap.values.elementAt(position)
-
-
-
+    override fun getItemViewType(position: Int) = dataKey.values.elementAt(position)
+    override fun getItemCount() = dataKey.keys.size
+    fun getItemData(position: Int) = dataKey.keys.elementAt(position)
 
     private class DataBindingViewHolder(val dataBinding: ViewDataBinding) : RecyclerView.ViewHolder(dataBinding.root)
 
     /**
      * 刷新或者添加指定类型条目，(局部刷新还是使用LiveData)
      */
-    fun refreshOrAddItem(itemData: Any) {
+    fun appendItem(itemData: Any) {
         val viewType = binderManager.getItemViewType(itemData)
-        val oldItemBean = sortedMap[viewType]
-        //刷新或添加数据
-        sortedMap[viewType] = itemData
-        //刷新或添加UI
-        if (oldItemBean == null)
-            notifyItemInserted(getPosition(viewType))
-        else
-            notifyItemChanged(getPosition(viewType), "refreshTag")
+        dataKey[itemData] = viewType
+        notifyItemInserted(dataKey.size-1)
     }
 
-    /**
-     * 删除指定类型条目
-     */
-    inline fun <reified T> removeItem() {
-        val viewType = binderManager.getItemViewType<T>()
-        if (sortedMap.keys.contains(viewType)) {
-            val position = sortedMap.keys.indexOf(viewType)
-            sortedMap.remove(viewType)
-            notifyItemRemoved(position)
+    fun setList(list: MutableList<out Any>){
+        dataKey.clear()
+        for(data in list){
+            appendItem(data)
         }
+        notifyDataSetChanged()
     }
 
 }

@@ -1,9 +1,8 @@
-package com.xiuhua.mutilutil.quickadapter
+package com.xiuhua.mutilutil.core
 
 import android.view.View
 import com.xiuhua.mutilutil.core.NotifyLiveData
 import com.xiuhua.mutilutil.core.toast
-
 
 class NotifyText(content: String) {
     val notifyLiveData =NotifyLiveData(content)
@@ -19,4 +18,5 @@ class NotifyText(content: String) {
     fun onClick(view : View){
         notifyLiveData.getData().toast(view.context)
     }
+
 }
