@@ -9,7 +9,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.nsw.xiuhua.databinding.ActivityMainBinding
-import kotlinx.coroutines.test.withTestContext
 
 //import com.nsw.xiuhua.databinding.ActivityMainBinding
 

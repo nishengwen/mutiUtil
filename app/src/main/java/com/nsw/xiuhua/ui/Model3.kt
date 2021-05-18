@@ -2,14 +2,13 @@ package com.nsw.xiuhua.ui
 
 import android.view.View
 import android.widget.TextView
-import com.nsw.xiuhua.core.toast
+import com.xiuhua.mutilutil.core.NotifyLiveData
 
 class Model3 {
     val userOb = NotifyLiveData(User("11"))
 
     fun onClickBtn(view : View ) {
         view as TextView
-        view.context.toast(  view.text.toString())
 //        userOb.value?.setName("444444444444444")
 //        userOb.postValue(User("444444444444444"))
         userOb.getData().name="444444444444444"

@@ -1,11 +1,11 @@
-package com.nsw.xiuhua.ui
+package com.xiuhua.mutilutil.core
 
 import androidx.lifecycle.LiveData
 
 /**
  * 设定初始值 : Any 非空类型
  */
-class NotifyLiveData<T : Any>(value: T) : LiveData<T>(value) {
+open class NotifyLiveData<T : Any>(value: T) : LiveData<T>(value) {
     fun setData(value: T) {
         postValue(value)
     }
