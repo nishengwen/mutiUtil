@@ -1,6 +1,7 @@
 package com.xiuhua.mutilutil.quickadapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
@@ -20,6 +21,7 @@ import java.util.*
  * Data 不可以重复
  * DataViewBinder 不可以重复
  */
+private const val TAG = "MultiAdapter"
 class MultiAdapter private constructor(registerBinderAction: MultiAdapter.() -> Unit, mContext: Context, private val mLifecycleOwner: LifecycleOwner) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     constructor (activity: ComponentActivity, registerBinderAction: MultiAdapter.() -> Unit) : this(registerBinderAction, activity, activity)
@@ -50,6 +52,7 @@ class MultiAdapter private constructor(registerBinderAction: MultiAdapter.() -> 
         val viewDataBinding = dataBinder.getSDataBinding(inflater, parent)
         viewDataBinding.lifecycleOwner = mLifecycleOwner
         dataBinder.onCreateViewHolder(viewDataBinding)
+        Log.d(TAG, "onCreateViewHolder: ${viewType}")
         return DataBindingViewHolder(viewDataBinding)
     }
 

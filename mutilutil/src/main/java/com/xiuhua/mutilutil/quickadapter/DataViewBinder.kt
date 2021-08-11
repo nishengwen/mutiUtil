@@ -8,6 +8,7 @@ import java.lang.reflect.Type
 
 /**
  * 模板方法 不能存储数据，很多数据对象可能共用一个模板
+ * T 必须不同类型 List<String>和List<Int> 类型是相同的
  */
 abstract class DataViewBinder<S : ViewDataBinding, T : Any> {
     abstract fun onCreateViewHolder(viewDataBinding: S)

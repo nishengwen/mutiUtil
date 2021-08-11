@@ -1,6 +1,7 @@
 package com.xiuhua.mutilutil.quickadapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
@@ -11,13 +12,14 @@ import androidx.recyclerview.widget.RecyclerView
 
 /**
  *
- * 数据和模板 多数据对多模板
+ * 多模板列表
  *
  * 列表顺序由数据决定
  *
  * 最广泛的列表模型
  *
  */
+private const val TAG = "MixAdapter"
 class MixAdapter private constructor(registerBinderAction: MixAdapter.() -> Unit, mContext: Context, private val mLifecycleOwner: LifecycleOwner) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     constructor (activity: ComponentActivity, registerBinderAction: MixAdapter.() -> Unit) : this(registerBinderAction, activity, activity)
@@ -46,6 +48,7 @@ class MixAdapter private constructor(registerBinderAction: MixAdapter.() -> Unit
         val viewDataBinding = dataBinder.getSDataBinding(inflater, parent)
         viewDataBinding.lifecycleOwner = mLifecycleOwner
         dataBinder.onCreateViewHolder(viewDataBinding)
+        Log.d(TAG, "onCreateViewHolder: ${viewType}")
         return DataBindingViewHolder(viewDataBinding)
     }
 
