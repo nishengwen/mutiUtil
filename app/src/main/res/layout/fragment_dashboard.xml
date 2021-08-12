@@ -11,8 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.dashboard.DashboardFragment">
-
-        <com.xiuhua.mutilutil.layout.RecyclerViewScrollingLinearLayout
+        <com.xiuhua.mutilutil.layout.NestedScrollingLinearLayoutForRecyclerView
             android:id="@+id/nestScrollLinerLayout"
             android:layout_width="0dp"
             android:background="@color/teal_200"
@@ -27,6 +26,6 @@
                 android:layout_width="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:layout_height="match_parent" />
-        </com.xiuhua.mutilutil.layout.RecyclerViewScrollingLinearLayout>
+        </com.xiuhua.mutilutil.layout.NestedScrollingLinearLayoutForRecyclerView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

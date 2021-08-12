@@ -34,10 +34,7 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        rootBinding.parentRecyclerView.apply {
-            layoutManager=LinearLayoutManager(context)
-            adapter=ParentAdapter(context,rootBinding.nestScrollLinerLayout)
-        }
+        rootBinding.parentRecyclerView.adapter=ParentAdapter(requireContext(),rootBinding.nestScrollLinerLayout)
         Log.d("DashboardFragment_dpi", "onViewCreated: "+getDisplayMetrics(requireContext()))
     }
 

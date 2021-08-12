@@ -9,9 +9,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.nsw.xiuhua.R
-import com.xiuhua.mutilutil.layout.RecyclerViewScrollingLinearLayout
+import com.xiuhua.mutilutil.layout.NestedScrollingLinearLayoutForRecyclerView
 
-class ParentAdapter(val context: Context, val scrollParent: RecyclerViewScrollingLinearLayout) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ParentAdapter(private val context: Context, private val scrollParent: NestedScrollingLinearLayoutForRecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val testList1 = mutableListOf<String>().apply {
         for (index in 1..40) {
             add("$index-$index-$index-$index")
