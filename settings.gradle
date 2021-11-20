@@ -1,3 +1,5 @@
 include ':app'
 rootProject.name = "xiuhua"
 include ':mutilutil'
+include ':apt-annotation'
+include ':apt-processor'

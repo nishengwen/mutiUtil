@@ -1,22 +1,39 @@
 package com.nsw.xiuhua.ui.home
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import com.nsw.xiuhua.databinding.HomeLayoutBinding
+import com.nsw.xiuhua.library.view.recyclerview.PullDownCoordinatorLayout
 import com.nsw.xiuhua.ui.Model4
 import com.nsw.xiuhua.ui.SecondBinder
 import com.nsw.xiuhua.ui.SimpleBinder
 import com.xiuhua.mutilutil.core.NotifyText
-import com.xiuhua.mutilutil.core.toast
 import com.xiuhua.mutilutil.quickadapter.*
 
+ class OffsetListener : AppBarLayout.OnOffsetChangedListener {
+    override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
+        appBarLayout?.apply {
+            outData?.invoke((totalScrollRange + verticalOffset).toFloat() / totalScrollRange,totalScrollRange + verticalOffset)
+        }
+    }
+
+    var outData: ((Float,Int) -> Unit)? = null
+
+    fun onScrollPercent(outData: (Float,Int) -> Unit) {
+        this@OffsetListener.outData = outData
+    }
+
+}
 
 class HomeFragment : Fragment() {
 //    private lateinit var homeViewModel: HomeViewModel
@@ -36,10 +53,49 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        fragmentHomeBinding.appbar.addOnOffsetChangedListener(
+            OffsetListener().apply {
+                onScrollPercent { scrollPercent,offSetY ->
+                    if(scrollPercent<0.9f){
+                        fragmentHomeBinding.goLive.alpha=0f
+                    }else{
+                        val alf= (scrollPercent-0.9f)*10
+                        fragmentHomeBinding.goLive.alpha=alf
+                        fragmentHomeBinding.coordinator.setHandlePullDown(offSetY>=fragmentHomeBinding.appbar.totalScrollRange)
+                    }
+                }
+            }
+        )
+        fragmentHomeBinding.coordinator.setDragListener(object : PullDownCoordinatorLayout.DragListener {
+            override fun onPullRelease() {
+                Toast.makeText(context,"去了直播间",Toast.LENGTH_LONG).show()
+                fragmentHomeBinding.goLive.text="下拉去直播间"
+            }
+
+            override fun onShowText(offY: Float) {
+                fragmentHomeBinding.goLive.text="松开去直播间"
+            }
+
+            override fun onPullFailed() {
+                fragmentHomeBinding.goLive.text="下拉去直播间"
+            }
+
+        })
 //        val data=QuickAdapter.setDataToList(fragmentHomeBinding.recyclerView,this@HomeFragment)
 //        view.postDelayed({data[5].setText("-----------------------------")},5000)
-        test(fragmentHomeBinding.recyclerView,this@HomeFragment)
-
+//        test(fragmentHomeBinding,this@HomeFragment)
+        fragmentHomeBinding.webview.apply {
+            //开启js
+            settings.javaScriptEnabled = true
+            settings.allowFileAccess = true // For Baidu Map web page。
+            settings.domStorageEnabled = true
+            settings.setAppCacheEnabled(true)
+            settings.useWideViewPort = true
+            settings.loadWithOverviewMode = true
+            webChromeClient = WebChromeClient()
+            loadUrl("https://www.baidu.com/")
+        }
 //        fragmentHomeBinding.appbarLayout.addOnOffsetChangedListener(object :AppBarStateChangeListener(){
 //            override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
 //
@@ -121,4 +177,19 @@ class HomeFragment : Fragment() {
 
         abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State?)
     }
+}
+val GROUP_A_LIST= listOf(
+    "app-indexpage-aisellversionnew",
+    "app-indexpage-aisellversionnew-a",
+    "app-indexpage-aisellversionnew-b",
+    "app-indexpage-aisellversionnew-c",
+    "app-indexpage-aisellversionnew-d",
+    "app-indexpage-aisellversionnew-e",
+    "app-indexpage-aisellversionnew-f"
+)
+fun main(args: Array<String>) {
+    val x=System.nanoTime()
+    System.out.println("app-indexpage-aisellversionnew" in GROUP_A_LIST)
+    System.out.println(System.nanoTime()-x)
+
 }

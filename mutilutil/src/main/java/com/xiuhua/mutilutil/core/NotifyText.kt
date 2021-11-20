@@ -1,10 +1,15 @@
 package com.xiuhua.mutilutil.core
 
 import android.view.View
-import com.xiuhua.mutilutil.core.NotifyLiveData
-import com.xiuhua.mutilutil.core.toast
+import android.widget.TextView
+
+
+
+
 
 class NotifyText(content: String) {
+     var test: TextView?=null;
+
     val notifyLiveData =NotifyLiveData(content)
 
     fun setText(value: String) {

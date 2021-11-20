@@ -2,7 +2,6 @@ package com.xiuhua.mutilutil.layout
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +20,6 @@ class NestedScrollingLinearLayoutForRecyclerView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : NestedScrollingLinearLayout(context, attrs, defStyleAttr) {
-    private val TAG = this.javaClass.simpleName
 
     //在mParentRecyclerView
     private var mParentRecyclerView: RecyclerView? = null
@@ -49,22 +47,13 @@ class NestedScrollingLinearLayoutForRecyclerView @JvmOverloads constructor(
         val sonRcy = mChildRecyclerView
         val innerLayout = mInnerLayout
         if (parentRcy != null && sonRcy != null && innerLayout != null) {
-            // 不知道为什么当recyclerview再回到屏幕内的时候 向下滑动了一行（只有使用StaggeredGridLayoutManager这样，这里做了修正保证sonRcy滑动最顶部或者最底部）
-            when {
-                //上滑最大距离
-                innerLayout.top < 0 -> sonRcy.scrollBy(0, sonRcy.computeVerticalScrollRange() - sonRcy.computeVerticalScrollExtent())
-                //下滑最大距离
-                innerLayout.top > 0 -> sonRcy.scrollBy(0, sonRcy.computeVerticalScrollExtent() - sonRcy.computeVerticalScrollRange())
-            }
 
             //因为mParentRecyclerView是默认拦截滑动事件，所以target一直是parentRcy
             if (target === parentRcy) {
-                handleRecyclerViewScroll(innerLayout.top, dy, consumed,parentRcy,sonRcy)
+                handleRecyclerViewScroll(innerLayout.top, dy, consumed, sonRcy)
             }
         }
     }
-
-
 
 
     /**
@@ -77,156 +66,48 @@ class NestedScrollingLinearLayoutForRecyclerView @JvmOverloads constructor(
     private fun handleRecyclerViewScroll(
         innerLayoutTop: Int,
         dy: Int,
-        consumed: IntArray, parentRecyclerView: RecyclerView, childRecyclerView: RecyclerView
+        consumed: IntArray, childRcy: RecyclerView
     ) {
-        val childScrolledY = childRecyclerView.computeVerticalScrollOffset()
-        val childScrolledYLeft = childRecyclerView.computeVerticalScrollRange() - childScrolledY - childRecyclerView.computeVerticalScrollExtent()
-        //parent 先吃最多lastItemTop 的dy 负的（下滑）更没 son什么事情了,return 直接就是不管让parent内部拦截
-        if(innerLayoutTop>0 ){
-            if(dy<innerLayoutTop) {
-                return
-            }else{
-                //当 dy>innerLayoutTop 就需要son滑动了
-                parentRecyclerView.scrollBy(0, innerLayoutTop)
-                val childScroll= min(childScrolledYLeft,dy - innerLayoutTop)
-                childRecyclerView.scrollBy(0, childScroll)
-                consumed[1]=childScroll+innerLayoutTop
-            }
-        }else if(innerLayoutTop<0){
-            if(dy>innerLayoutTop){
-                return
-            }else{
-                //当 dy<innerLayoutTop 就需要son滑动了
-                parentRecyclerView.scrollBy(0, innerLayoutTop)
-                val childScroll= max(-childScrolledY,dy - innerLayoutTop)
-                childRecyclerView.scrollBy(0, childScroll)
-                consumed[1]=childScroll+innerLayoutTop
-            }
-        }else{
-            //childScroll取-childScrolledY和childScrolledYLeft 之间
-            val childScroll= max(min(dy,childScrolledYLeft),-childScrolledY)
-            childRecyclerView.scrollBy(0, childScroll)
-            consumed[1] = childScroll
+        val childScrolledY = childRcy.computeVerticalScrollOffset()
+        val childScrolledYLeft = childRcy.computeVerticalScrollRange() - childScrolledY - childRcy.computeVerticalScrollExtent()
+        // 不知道为什么当recyclerview再回到屏幕内的时候 向下滑动了一行（只有使用StaggeredGridLayoutManager这样，这里做了修正保证sonRcy滑动最顶部或者最底部）
+        when {
+            //上滑最大距离
+            innerLayoutTop < 0 -> childRcy.scrollBy(0, childScrolledYLeft)
+            //下滑最大距离
+            innerLayoutTop > 0 -> childRcy.scrollBy(0, -childScrolledY)
         }
 
-//
-//        //tab上边没到顶
-//        if (innerLayoutTop > 0) {
-//            if (dy > 0) {
-//                //向上滑  1、parent 先吃最多lastItemTop 2、然后 child后吃 最多childScrolledYLeft 3、剩下的再让parent吃,吃不了没事系统自行处理
-//                if (innerLayoutTop > dy) {
-//                    //tab的top>想要滑动的dy,就让外部RecyclerView自行处理
-//                    Log.d(TAG, "没到顶parent自行处理 上滑  parent>lastItemTop：$innerLayoutTop dy:$dy")
-//                } else {
-//                    Log.d(
-//                        TAG,
-//                        "没到顶parent和son处理 上滑  parent>lastItemTop：" + innerLayoutTop + " son>dy - lastItemTop:" + (dy - innerLayoutTop)
-//                    )
-//                    //tab的top<=想要滑动的dy,先滑外部RecyclerView，滑距离为lastItemTop，刚好到顶；剩下的就滑内层了。
-////                    consumed[1] = dy;
-//                    mParentRecyclerView!!.scrollBy(0, innerLayoutTop)
-//                    //                    mChildRecyclerView.scrollBy(0, dy - lastItemTop);
-//                    //子recyclerview最多只能消化childScrolledY,剩下的就让外部RecyclerView自行处理
-//                    val childScrolledY = mChildRecyclerView!!.computeVerticalScrollOffset()
-//                    val childScrolledYLeft =
-//                        mChildRecyclerView!!.computeVerticalScrollRange() - childScrolledY - mChildRecyclerView!!.computeVerticalScrollExtent()
-//                    if (childScrolledYLeft > dy - innerLayoutTop) {
-//                        mChildRecyclerView!!.scrollBy(0, dy - innerLayoutTop)
-//                        Log.d(
-//                            TAG + "555",
-//                            "childScrolledY：" + (dy - innerLayoutTop) + " childScrolledYLeft:" + childScrolledYLeft
-//                        )
-//                        consumed[1] = dy
-//                    } else {
-//                        mChildRecyclerView!!.scrollBy(0, childScrolledYLeft)
-//                        Log.d(
-//                            TAG + "555",
-//                            "childScrolledY：$childScrolledYLeft childScrolledYLeft:$childScrolledYLeft"
-//                        )
-//                        consumed[1] = childScrolledYLeft + innerLayoutTop
-//                    }
-//                }
-//            } else {
-//                //parent吃,吃不了没事系统自行处理 向下滑，就让外部RecyclerView自行处理
-//                Log.d(TAG, "没到顶parent自行处理下滑   parent>lastItemTop：$innerLayoutTop dy:$dy")
-//            }
-//            //tab 已经超越顶部
-//        } else
-//            if (innerLayoutTop < 0) {
-//            if (dy > 0) {
-//                //parent吃,吃不了没事系统自行处理 ，向上滑，就让外部RecyclerView自行处理
-//                Log.d(TAG, "过顶了parent自行处理上滑   parent>lastItemTop：$innerLayoutTop dy:$dy")
-//                //child先吃满了
-//            } else {
-//                //向下滑   1、parent 先吃最多lastItemTop 2、然后 child后吃 最多childScrolledY 3、剩下的再让parent吃,吃不了没事系统自行处理
-//                if (innerLayoutTop < dy) {
-//                    //tab的top> 想要滑动的dy,就让外部RecyclerView自行处理
-//                    Log.d(TAG, "没到顶parent自行处理 下滑  parent>lastItemTop：$innerLayoutTop dy:$dy")
-//                } else {
-//                    Log.d(
-//                        TAG,
-//                        "没到顶parent和son处理 上滑  parent>lastItemTop：" + innerLayoutTop + " son>dy - lastItemTop:" + (dy - innerLayoutTop)
-//                    )
-//                    //tab的top<=想要滑动的dy,先滑外部RecyclerView，滑距离为lastItemTop，刚好到顶；剩下的就滑内层了。
-////                    consumed[1] = dy;
-//                    //父recycler最多吃掉lastItemTop
-//                    mParentRecyclerView!!.scrollBy(0, innerLayoutTop)
-//                    //                    mChildRecyclerView.scrollBy(0, dy - lastItemTop);
-//                    //子recyclerview最多只能消化childScrolledY,剩下的就让外部RecyclerView自行处理
-//                    val childScrolledY = mChildRecyclerView!!.computeVerticalScrollOffset()
-//                    val childScrolledYLeft =
-//                        mChildRecyclerView!!.computeVerticalScrollRange() - childScrolledY - mChildRecyclerView!!.computeVerticalScrollExtent()
-//                    if (childScrolledY > innerLayoutTop - dy) {
-//                        mChildRecyclerView!!.scrollBy(0, dy - innerLayoutTop)
-//                        Log.d(
-//                            TAG + "555",
-//                            "childScrolledY：" + (dy - innerLayoutTop) + " childScrolledYLeft:" + childScrolledYLeft
-//                        )
-//                        consumed[1] = dy
-//                    } else {
-//                        mChildRecyclerView!!.scrollBy(0, -childScrolledY)
-//                        Log.d(
-//                            TAG + "555",
-//                            "childScrolledY：" + -childScrolledY + " childScrolledYLeft:" + childScrolledYLeft
-//                        )
-//                        consumed[1] = innerLayoutTop - childScrolledY
-//                    }
-//                }
-//            }
-//        } else {
-//            if (dy > 0) {
-//                //上滑
-//                if (childScrolledYLeft > dy) {
-//                    mChildRecyclerView!!.scrollBy(0, dy)
-//
-//                    consumed[1] = dy
-//                } else {
-//                    mChildRecyclerView!!.scrollBy(0, childScrolledYLeft)
-//
-//                    consumed[1] = childScrolledYLeft
-//                }
-//            } else {
-//                //下滑,child能消化childScrolledY以内的
-//                if (childScrolledY > -dy) {
-//                    mChildRecyclerView!!.scrollBy(0, dy)
-//
-//                    consumed[1] = dy
-//                } else {
-//                    mChildRecyclerView!!.scrollBy(0, -childScrolledY)
-//                    consumed[1] = -childScrolledY
-//                }
-//            }
-//        }
+        //parent先吃最多lastItemTop
+        //son最多吃 -childScrolledY~childScrolledYLeft
+        when (innerLayoutTop) {
+            in dy..-1 -> {
+                //当 dy<innerLayoutTop<0 就需要son滑动了
+                val childScroll = max(-childScrolledY, dy - innerLayoutTop)
+                childRcy.scrollBy(0, childScroll)
+                consumed[1] = childScroll
+            }
+
+            0 -> {
+                //childScroll取-childScrolledY和childScrolledYLeft 之间
+                val childScroll = max(min(dy, childScrolledYLeft), -childScrolledY)
+                childRcy.scrollBy(0, childScroll)
+                consumed[1] = childScroll
+            }
+
+            in 1..dy -> {
+                //当 1<innerLayoutTop<dy 就需要son滑动了
+                val childScroll = min(childScrolledYLeft, dy - innerLayoutTop)
+                childRcy.scrollBy(0, childScroll)
+                consumed[1] = childScroll
+            }
+        }
     }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-
         //直接获取外层RecyclerView
         mParentRecyclerView = getRecyclerView(this)
-        Log.i(TAG, "onFinishInflate: mParentRecyclerView=$mParentRecyclerView")
-
-        //关于内层RecyclerView：此时还获取不到ViewPager内fragment的RecyclerView，需要在加载ViewPager后 fragment可见时 传入
     }
 
     private fun getRecyclerView(viewGroup: ViewGroup): RecyclerView? {
@@ -253,10 +134,9 @@ class NestedScrollingLinearLayoutForRecyclerView @JvmOverloads constructor(
     }
 
     /**
+     *
      * 外层RecyclerView的最后一个item，即：tab + viewPager
      * 用于判断 滑动 临界位置
-     *
-     * @param lastItemView
      */
     fun setLastItem(lastItemView: View) {
         //当自己可见的时候赋值到嵌套滑动

@@ -10,7 +10,7 @@ import com.nsw.xiuhua.R
 
 class SonAdapter(val context: Context)  : RecyclerView.Adapter<SonAdapter.TextViewHolder>() {
     private val testList= mutableListOf<String>().apply {
-        for(index  in 1..40){
+        for(index  in 1..100){
             add(">>>>>>>>>>>>$index-$index-$index-$index")
         }
     }
